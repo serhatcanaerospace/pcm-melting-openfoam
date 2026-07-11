@@ -1,0 +1,24 @@
+name: quality
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Compile Python scripts
+        run: |
+          if [ -d scripts ]; then python -m compileall scripts; fi
+          if [ -d tools ]; then python -m compileall tools; fi
+      - name: Repository structure check
+        run: |
+          python tools/quality_check.py
+      - name: Check public-secret patterns
+        run: |
+          ! grep -RInE --exclude='quality_check.py' --exclude='quality.yml' '/home/dstech|DSTECH_WORKS|claude.ai' .
